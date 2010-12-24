@@ -79,7 +79,7 @@ else
 	svn up ./svn/$branch -r $rev
 fi
 
-if [ list -qt 0 ]; then
+if [ $list -qt 0 ]; then
 	for a in `ls ./svn/$branch/linux`; do
 		if [ $a != "generic" ]; then
 			echo $a
@@ -88,7 +88,7 @@ if [ list -qt 0 ]; then
 	exit 0
 fi
 
-if [ recovery -qt 0 ]; then
+if [ $recovery -qt 0 ]; then
 	rm -fr svn/
 	exit 0
 fi
