@@ -1,0 +1,42 @@
+oke - OpenWrt Kernel Extractor
+----------------------------------
+
+oke is an command line utility developer to "extract" a version of kernel from 
+Openwrt developer branch. Openwrt use an highly customization kernel with a lot
+of improvement and not upstream patches that are useful also outside of OpenWrt 
+project.
+
+This simple program is intend to be used to extract a patched kernel for a specific
+target platform both from trunk that stable openwrt release.
+You can also include generic patches or just the arch specific one.
+
+USAGE
+---------
+./oke -a <arch> [-r <revison>] [-b <trunk|kamikaze|backfire>] [-g]
+	Extract kernel for arch at revision from branch.
+	If -r is not present HEAD is assumed
+	If -b option is not present trunk is assumed
+	If -g is used try to extract a kernel for arch but
+	  without generic patches 
+	  (this command can fail if some arch specific patch
+	  is based on a generic one)
+
+./oke -l [-b <trunk|kamikaze|backfire>]
+	List the supported arch per branch
+	If -b option is not present trunk is assumed
+
+./oke -h
+	This README
+
+./oke -R
+	Recovery command. If request by the script run it to recover the
+	svn status
+
+DEVELOP
+----------
+oke is very simple but any improvement is welcome. Feel free to drop me a mail
+for bugs, suggestion, patch and general improvement
+<c.mignanti@gmail.com>
+
+Thank you for using OKE
+
