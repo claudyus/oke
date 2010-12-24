@@ -1,9 +1,9 @@
-#!/bin/bash
+#!/bin/bash +x 
 V=0.1rc1
 
 echo oke - Openwrt Kernel Extractor
 echo ------------------------------
-echo version $V
+echo Version $V
 
 #default value
 branch=trunk
@@ -11,7 +11,7 @@ rev=HEAD
 recovery=0
 list=0
 generic=1
-GDB="> /dev/null"
+GDB="2> /dev/null"
 
 pwd=`pwd`
 
@@ -49,29 +49,46 @@ while [ $# -gt 0 ]; do
   esac
 done
 
-#checkout svn
 if [ ! -d ./svn/$branch ]; then
+	echo Checkuot svn ...
 	mkdir -p svn
 	case $branch in
 		trunk)
-		repo=svn://svn.openwrt.org/openwrt/trunk/
+		repo=svn://svn.openwrt.org/openwrt/trunk/target
 		;;
 		backfire)
-		repo=svn://svn.openwrt.org/openwrt/branches/backfire
+		repo=svn://svn.openwrt.org/openwrt/branches/backfire/target
 		;;
 		kamikaze)
-		repo=svn co svn://svn.openwrt.org/openwrt/branches/8.09
+		repo=svn://svn.openwrt.org/openwrt/branches/8.09/target
 		;;
 		*)
 		echo Unsupported $branch 
 		exit 0
 		;;
 	esac
-	svn co $repo ./svn/$branch $GDB
+	svn co $repo ./svn/$branch -r $rev
+else
+	echo Updating svn ... 
+	svn up ./svn/$branch -r $rev
+fi
+
+if [ list -qt 0 ]; then
+	for a in `ls ./svn/$branch/linux`; do
+		if [ $a != "generic" ]; then
+			echo $a
+		fi
+	done
+	exit 0
+fi
+
+if [ recovery -qt 0 ]; then
+	rm -fr svn/
+	exit 0
 fi
 
 #parse kernel version
-kernel=`grep -o 'LINUX_VERSION:=[0-9.]*' ./svn/$branch/target/linux/$arch/Makefile | grep -o '[0-9.]*' $kernel`
+kernel=`grep -o 'LINUX_VERSION:=[0-9.]*' ./svn/$branch/linux/$arch/Makefile | grep -o '[0-9.]*' $kernel`
 kernel_patch=`echo $kernel | grep -o '^[0-9]*.[0-9]*.[0-9]*' -`
 echo $kernel_patch
 
@@ -84,9 +101,8 @@ fi
 #prepare patched dir
 echo Preparing kernel...
 rm -fr kernels/linux-$kernel kernels/linux-$kernel.ori/
-tar xvjf kernels/linux-$kernel.tar.bz2 -C kernels/ $GDB
-mkdir -p kernels/linux-$kernel.ori/
-mv  kernels/linux-$kernel/* kernels/linux-$kernel.ori
+tar xvjf kernels/linux-$kernel.tar.bz2 -C kernels/
+mv  kernels/linux-$kernel/ kernels/linux-$kernel.ori
 
 echo Preparing final dir...
 cp -r kernels/linux-$kernel.ori kernels/linux-$kernel
@@ -95,7 +111,7 @@ cp -r kernels/linux-$kernel.ori kernels/linux-$kernel
 if [ $generic ]; then
 	echo Applying generic patches...
 	#files
-	dir=./svn/$branch/target/linux/generic
+	dir=./svn/$branch/linux/generic
 	if [ -d $dir/files-$kernel_patch ]; then
 		cp -r $dir/files-$kernel_patch/* \
 			kernels/linux-$kernel/
@@ -119,7 +135,7 @@ echo Applying arch patches...
 cd $pwd
 pwd
 #files
-dir=./svn/$branch/target/linux/$arch
+dir=./svn/$branch/linux/$arch
 if [ -d $dir/files-$kernel_patch ]; then
 	cp -r $dir/files-$kernel_patch/* \
 		kernels/linux-$kernel/
@@ -143,17 +159,17 @@ fi
 
 echo Cleanup pre-tar...
 cd $pwd/kernels/linux-$kernel
-find . -name '.svn' -exec rm -fr \{\} \;  $GDB
+find . -name '.svn' -exec rm -fr \{\} \;
 cd ..
 
 echo Genereting unified patch...
 echo unified patch from oke v$V for $arch platform generated:\n`date` \
-	> $pwd/patch_$kernel.patch
+	> $pwd/patch_$kernel_$arch.patch
 diff -Naur $pwd/kernels/linux-$kernel.ori $pwd/kernels/linux-$kernel \
 	>> $pwd/patch_$kernel_$arch.patch 
 
-echo Re tar...
-tar cjvf linux-$kernel-$arch.tar.bz2 linux-$kernel/*  $GDB
+echo Re-tar...
+tar cjvf linux-$kernel-$arch.tar.bz2 linux-$kernel/* 
 mv linux-$kernel-$arch.tar.bz2 ..
 
 echo Success!
