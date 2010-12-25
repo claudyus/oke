@@ -71,6 +71,10 @@ while [ $# -gt 0 ]; do
 	  recovery=1
 	  shift 1
 	;;
+	--git)
+	  git_repo=$2
+	  shift 2
+	;;
 	*)
 	  cat README
 	  exit 0
@@ -162,6 +166,16 @@ echo unified patch from oke v$V for $arch platform generated: `date` \
 	> $pwd/patch_"$kernel"_$arch.patch
 diff -Naur $pwd/kernels/linux-$kernel.ori $pwd/kernels/linux-$kernel \
 	>> $pwd/patch_"$kernel"_$arch.patch 
+
+if [ $git_repo ]; then
+	#add the patches on git repo
+	cd $git_repo
+	git checkout v$kernel -f -b v$kernel-$arch
+	patch -p1 < pwd/patch_"$kernel"_$arch.patch
+	git add --all
+	git commit --all -m "openwrt: $arch kernel from branch: $branch rev $rev"
+	git checkout master
+fi
 
 echo Re-tar...
 tar cjvf linux-$kernel-$arch.tar.bz2 linux-$kernel/* 

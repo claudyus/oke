@@ -12,14 +12,22 @@ You can also include generic patches or just the arch specific one.
 
 USAGE
 ---------
-./oke -a <arch> [-r <revison>] [-b <trunk|kamikaze|backfire>] [-g]
+./oke -a <arch> [-r <revison>] [-b <branch>] [-g] [--git <gitrep>]
 	Extract kernel for arch at revision from branch.
 	If -r is not present HEAD is assumed
-	If -b option is not present trunk is assumed
+	If -b option is not present trunk is assumed otherwise the
+	  following branches are defined:
+	    - trunk
+	    - backfire
+	    - kamikaze
 	If -g is used try to extract a kernel for arch but
 	  without generic patches 
-	  (this command can fail if some arch specific patch
-	  is based on a generic one)
+	  (this command can fail if some arch specific patch is based 
+		on a generic one)
+	If --git is provided the final unified patches in committed on
+	  the valid <gitrepo> that should be a clone of linux-stable.
+	  Each commit create a branch in the form v($VERSION)-($ARCH)
+
 
 ./oke -l [-b <trunk|kamikaze|backfire>]
 	List the supported arch per branch
