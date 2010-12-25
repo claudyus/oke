@@ -83,13 +83,13 @@ if [ ! -d ./svn/$branch ]; then
 	mkdir -p svn
 	case $branch in
 		trunk)
-		repo=svn://svn.openwrt.org/openwrt/trunk/target
+		repo=svn://svn.openwrt.org/openwrt/trunk/target/linux
 		;;
 		backfire)
-		repo=svn://svn.openwrt.org/openwrt/branches/backfire/target
+		repo=svn://svn.openwrt.org/openwrt/branches/backfire/target/linux
 		;;
 		kamikaze)
-		repo=svn://svn.openwrt.org/openwrt/branches/8.09/target
+		repo=svn://svn.openwrt.org/openwrt/branches/8.09/target/linux
 		;;
 		*)
 		echo Unsupported $branch 
@@ -117,14 +117,14 @@ if [ $recovery ]; then
 fi
 
 #parse kernel version
-kernel=`grep -o 'LINUX_VERSION:=[0-9.]*' ./svn/$branch/linux/$arch/Makefile | grep -o '[0-9.]*' $kernel`
+kernel=`grep -o 'LINUX_VERSION:=[0-9.]*' ./svn/$branch/$arch/Makefile | grep -o '[0-9.]*' $kernel`
 kernel_patch=`echo $kernel | grep -o '^[0-9]*.[0-9]*.[0-9]*' -`
 echo $kernel_patch
 
 mkdir -p kernels
 if [ ! -f kernels/linux-$kernel.ori.tar.bz2 ]; then
 	echo Downloading kernel $kernel...
-	wget -c ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$kernel.tar.bz2 -O kernels/linux-$kernel.tar.bz2  $GDB
+	wget -c ftp://ftp.kernel.org/pub/linux/kernel/v2.6/linux-$kernel.tar.bz2 -O kernels/linux-$kernel.tar.bz2  || exit 0 
 fi
 
 #prepare patched dir
@@ -140,7 +140,7 @@ cp -r kernels/linux-$kernel.ori kernels/linux-$kernel
 if [ ! $generic ]; then
 	echo Applying generic patches...
 	#files
-	_apply $pwd/svn/$branch/linux/generic 
+	_apply $pwd/svn/$branch/generic 
 
 else
 	echo WARNING: Skipping generic patches. See README
@@ -149,7 +149,7 @@ fi
 #apply arch specific 
 echo Applying arch patches...
 #files
-_apply $pwd/svn/$branch/linux/$arch
+_apply $pwd/svn/$branch/$arch
 
 #diff and tar
 echo Cleanup pre-tar...
