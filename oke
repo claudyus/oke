@@ -19,6 +19,32 @@ GDB="2> /dev/null"
 
 pwd=`pwd`
 
+_apply() {
+	cd $pwd
+	#files
+	if [ -d $1/files-$kernel_patch ]; then
+		cp -r $1/files-$kernel_patch/* \
+			kernels/linux-$kernel/
+	else
+		cp -r $1/files/* \
+			kernels/linux-$kernel/
+	fi
+	#patches
+	if [ -d $1/patches-$kernel_patch ]; then
+		cd kernels/linux-$kernel
+		for pt in `ls $1/patches-$kernel_patch`; do
+			echo $pt
+			patch -p1 < $1/patches-$kernel_patch/$pt  $GDB
+		done
+	else
+		for pt in `ls $1/patches`; do
+			echo $pt
+			patch -p1 < $1/patches/$pt $GDB
+		done
+	fi
+}
+
+
 #parse command line
 while [ $# -gt 0 ]; do
   case $1  in
@@ -115,52 +141,18 @@ cp -r kernels/linux-$kernel.ori kernels/linux-$kernel
 if [ $generic ]; then
 	echo Applying generic patches...
 	#files
-	dir=./svn/$branch/linux/generic
-	if [ -d $dir/files-$kernel_patch ]; then
-		cp -r $dir/files-$kernel_patch/* \
-			kernels/linux-$kernel/
-	else
-		cp -r $dir/files/* \
-			kernels/linux-$kernel/
-	fi
-
-	#patches
-	cd kernels/linux-$kernel
-	for pt in `ls $pwd/$dir/patches-$kernel_patch`; do
-		echo $pt
-		patch -p1 < $pwd/$dir/patches-$kernel_patch/$pt 2>&1  $GDB
-	done
+	_apply $pwd/svn/$branch/linux/generic 
 
 else
 	echo WARNING: Skipping generic patches. See README
 fi
 
+#apply arch specific 
 echo Applying arch patches...
-cd $pwd
-pwd
 #files
-dir=./svn/$branch/linux/$arch
-if [ -d $dir/files-$kernel_patch ]; then
-	cp -r $dir/files-$kernel_patch/* \
-		kernels/linux-$kernel/
-else
-	cp -r $dir/files/* \
-		kernels/linux-$kernel/
-fi
-#patches
-if [ -d $dir/patches-$kernel_patch ]; then
-	cd kernels/linux-$kernel
-	for pt in `ls $pwd/$dir/patches-$kernel_patch`; do
-		echo $pt
-		patch -p1 < $pwd/$dir/patches-$kernel_patch/$pt  $GDB
-	done
-else
-	for pt in `ls $pwd/$dir/patches`; do
-		echo $pt
-		patch -p1 < $pwd/$dir/patches/$pt
-	done
-fi
+_apply $pwd/svn/$branch/linux/$arch
 
+#diff and tar
 echo Cleanup pre-tar...
 cd $pwd/kernels/linux-$kernel
 find . -name '.svn' -exec rm -fr \{\} \;
