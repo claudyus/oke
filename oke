@@ -103,7 +103,7 @@ else
 fi
 
 if [ $list ]; then
-	for a in `ls ./svn/$branch/linux`; do
+	for a in `ls ./svn/$branch`; do
 		if [ $a != "generic" ]; then
 			echo $a
 		fi
