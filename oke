@@ -159,10 +159,10 @@ find . -name '.svn' -exec rm -fr \{\} \;
 cd ..
 
 echo Genereting unified patch...
-echo unified patch from oke v$V for $arch platform generated:\n`date` \
-	> $pwd/patch_$kernel_$arch.patch
+echo unified patch from oke v$V for $arch platform generated: `date` \
+	> $pwd/patch_"$kernel"_$arch.patch
 diff -Naur $pwd/kernels/linux-$kernel.ori $pwd/kernels/linux-$kernel \
-	>> $pwd/patch_$kernel_$arch.patch 
+	>> $pwd/patch_"$kernel"_$arch.patch 
 
 echo Re-tar...
 tar cjvf linux-$kernel-$arch.tar.bz2 linux-$kernel/* 
