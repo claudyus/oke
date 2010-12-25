@@ -164,7 +164,8 @@ cd ..
 echo Genereting unified patch...
 echo unified patch from oke v$V for $arch platform generated: `date` \
 	> $pwd/patch_"$kernel"_$arch.patch
-diff -Naur $pwd/kernels/linux-$kernel.ori $pwd/kernels/linux-$kernel \
+cd $pwd/kernels
+diff -Naur linux-$kernel.ori linux-$kernel \
 	>> $pwd/patch_"$kernel"_$arch.patch 
 
 if [ $git_repo ]; then
