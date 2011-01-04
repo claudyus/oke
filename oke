@@ -5,7 +5,7 @@
 # See /LICENSE for more information.
 #
 
-V=0.1
+V=0.2
 
 echo oke - Openwrt Kernel Extractor
 echo ------------------------------
@@ -33,12 +33,12 @@ _apply() {
 		cd kernels/linux-$kernel
 		for pt in `ls $1/patches-$kernel_patch`; do
 			echo $pt
-			patch -p1 < $1/patches-$kernel_patch/$pt  $GDB
+			patch -p1 < $1/patches-$kernel_patch/$pt
 		done
 	else
 		for pt in `ls $1/patches`; do
 			echo $pt
-			patch -p1 < $1/patches/$pt $GDB
+			patch -p1 < $1/patches/$pt
 		done
 	fi
 	#configure
@@ -133,7 +133,7 @@ fi
 #parse kernel version
 kernel=`grep -o 'LINUX_VERSION:=[0-9.]*' ./svn/$branch/$arch/Makefile | grep -o '[0-9.]*' $kernel`
 kernel_patch=`echo $kernel | grep -o '^[0-9]*.[0-9]*.[0-9]*' -`
-echo $kernel_patch
+echo Detected $kernel_patch kernel version...
 
 mkdir -p kernels
 if [ ! -f kernels/linux-$kernel.ori.tar.bz2 ]; then
@@ -144,7 +144,7 @@ fi
 #prepare patched dir
 echo Preparing kernel...
 rm -fr kernels/linux-$kernel kernels/linux-$kernel.ori/
-tar xvjf kernels/linux-$kernel.tar.bz2 -C kernels/
+tar xvjf kernels/linux-$kernel.tar.bz2 -C kernels/ > /dev/null
 mv  kernels/linux-$kernel/ kernels/linux-$kernel.ori
 
 echo Preparing final dir...
@@ -168,7 +168,7 @@ _apply $pwd/svn/$branch/$arch
 #diff and tar
 echo Cleanup pre-tar...
 cd $pwd/kernels/linux-$kernel
-find . -name '.svn' -exec rm -fr \{\} \;
+$(find . -name '.svn' -exec rm -fr \{\} \;) $GDB
 cd ..
 
 echo Genereting unified patch...
@@ -189,7 +189,7 @@ if [ $git_repo ]; then
 fi
 
 echo Re-tar...
-tar cjvf linux-$kernel-$arch.tar.bz2 linux-$kernel/* 
+tar cjvf linux-$kernel-$arch.tar.bz2 linux-$kernel/* > /dev/null
 mv linux-$kernel-$arch.tar.bz2 ..
 
 echo Success!
