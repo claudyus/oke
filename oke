@@ -36,6 +36,7 @@ _apply() {
 			patch -p1 < $1/patches-$kernel_patch/$pt
 		done
 	else
+		cd kernels/linux-$kernel
 		for pt in `ls $1/patches`; do
 			echo $pt
 			patch -p1 < $1/patches/$pt
