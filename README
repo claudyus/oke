@@ -11,8 +11,8 @@ target platform both from trunk that stable openwrt release.
 You can also include generic patches or just the arch specific one.
 
 USAGE
----------
-./oke -a <arch> [-r <revison>] [-b <branch>] [-g] [--git <gitrep>]
+--------- 
+./oke -a <arch> [-r <revison>] [-b <branch>] [-g] [--git <gitrep>] [-c]
 	Extract kernel for arch at revision from branch.
 	If -r is not present HEAD is assumed
 	If -b option is not present trunk is assumed otherwise the
@@ -24,6 +24,7 @@ USAGE
 	  without generic patches 
 	  (this command can fail if some arch specific patch is based 
 		on a generic one)
+	If -c is present a default config for resulting kernel is provided. 
 	If --git is provided the final unified patches in committed on
 	  the valid <gitrepo> that should be a clone of linux-stable.
 	  Each commit create a branch in the form v($VERSION)-($ARCH)

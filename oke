@@ -41,6 +41,12 @@ _apply() {
 			patch -p1 < $1/patches/$pt $GDB
 		done
 	fi
+	#configure
+	if [ ! $config ]; then
+		cd $pwd
+		cat $1/config-$kernel_patch >> kernels/linux-$kernel/.config || \
+		cat $1/config-default >> kernels/linux-$kernel/.config 
+	fi
 }
 
 
@@ -74,6 +80,10 @@ while [ $# -gt 0 ]; do
 	--git)
 	  git_repo=$2
 	  shift 2
+	;;
+	-c)
+	  config=0
+	  shift 1
 	;;
 	*)
 	  cat README
