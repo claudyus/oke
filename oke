@@ -112,9 +112,13 @@ if [ ! -d ./svn/$branch ]; then
 		;;
 	esac
 	svn co $repo ./svn/$branch -r $rev
+	cd ./svn/$branch
+	svn_ver=`export LANG=en; svn info | grep Revision | grep -o [0-9]*`
 else
 	echo Updating svn ... 
 	svn up ./svn/$branch -r $rev
+	cd ./svn/$branch
+	svn_ver=`export LANG=en; svn info | grep Revision | grep -o [0-9]*`
 fi
 
 if [ $list ]; then
@@ -130,6 +134,8 @@ if [ $recovery ]; then
 	rm -fr svn/
 	exit 0
 fi
+
+cd $pwd
 
 #parse kernel version
 kernel=`grep -o 'LINUX_VERSION:=[0-9.]*' ./svn/$branch/$arch/Makefile | grep -o '[0-9.]*' $kernel`
@@ -174,24 +180,25 @@ cd ..
 
 echo Genereting unified patch...
 echo unified patch from oke v$V for $arch platform generated: `date` \
-	> $pwd/patch_"$kernel"_$arch.patch
+	> $pwd/patch_"$kernel"_"$arch"_"$svn_ver".patch
+
 cd $pwd/kernels
 diff -Naur linux-$kernel.ori linux-$kernel \
-	>> $pwd/patch_"$kernel"_$arch.patch 
+	>> $pwd/patch_"$kernel"_"$arch"_"$svn_ver".patch 
 
 if [ $git_repo ]; then
 	#add the patches on git repo
 	cd $git_repo
 	git checkout v$kernel -f -b v$kernel-$arch
-	patch -p1 < pwd/patch_"$kernel"_$arch.patch
+	patch -p1 < pwd/patch_"$kernel"_"$arch"_"$svn_ver".patch
 	git add --all
 	git commit --all -m "openwrt: $arch kernel from branch: $branch rev $rev"
 	git checkout master
 fi
 
 echo Re-tar...
-tar cjvf linux-$kernel-$arch.tar.bz2 linux-$kernel/* > /dev/null
-mv linux-$kernel-$arch.tar.bz2 ..
+tar cjvf linux-$kernel-"$arch"_"$svn_ver".tar.bz2 linux-$kernel/* > /dev/null
+mv linux-$kernel-$arch_"$svn_ver".tar.bz2 ..
 
 echo Success!
 echo linux-$kernel-$arch.tar.bz2 is now in oke dir.
