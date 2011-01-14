@@ -198,7 +198,7 @@ fi
 
 echo Re-tar...
 tar cjvf linux-$kernel-"$arch"_"$svn_ver".tar.bz2 linux-$kernel/* > /dev/null
-mv linux-$kernel-$arch_"$svn_ver".tar.bz2 ..
+mv linux-$kernel-"$arch"_"$svn_ver".tar.bz2 ..
 
 echo Success!
-echo linux-$kernel-$arch.tar.bz2 is now in oke dir.
+echo linux-$kernel-"$arch"_"$svn_ver".tar.bz2 is now in oke dir.
